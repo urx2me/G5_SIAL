@@ -2,7 +2,37 @@
 /*
 Template Name: Login Page
 */
-//get_header();
+session_start();
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
+    // Check if username and password are provided
+    if (isset($_POST['username']) && isset($_POST['password'])) {
+        $username = sanitize_user($_POST['username']);
+        $password = $_POST['password'];
+
+        // Get user by username
+        $user = get_user_by('login', $username);
+
+        // Verify user credentials
+        if ($user && wp_check_password($password, $user->data->user_pass, $user->ID)) {
+            // Set session variables
+            $_SESSION['username'] = $username;
+            wp_set_current_user($user->ID);
+            wp_set_auth_cookie($user->ID);
+
+            // Prepare JavaScript for alert and redirection
+            $redirect_url = home_url();
+            echo '<script>
+                alert("Logged in as: ' . esc_js($username) . '");
+                window.location.href = "' . esc_url($redirect_url) . '";
+            </script>';
+            exit;
+        } else {
+            // If credentials are invalid, show an alert
+            echo '<script>alert("Invalid Username or Password")</script>';
+        }
+    }
+}
 ?>
 <!doctype html>
 <html class="no-js" lang="zxx">
@@ -14,19 +44,11 @@ Template Name: Login Page
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- <link rel="manifest" href="site.webmanifest"> -->
-    <!-- Place favicon.ico in the root directory -->
-
     <!-- CSS here -->
     <?php include get_template_directory() . '/css.php'; ?>
-    <!-- <link rel="stylesheet" href="css/responsive.css"> -->
 </head>
 
 <body>
-    <!--[if lte IE 9]>
-            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
-        <![endif]-->
-
     <!-- header-start -->
     <?php include get_template_directory() . '/nav/iheader.php'; ?>
     <!-- header-end -->
@@ -34,7 +56,6 @@ Template Name: Login Page
     <!-- search  -->
     <?php include get_template_directory() . '/nav/isearch.php'; ?>
     <!-- /search  -->
-
 
     <!-- bradcam_area  -->
     <?php include get_template_directory() . '/nav/ibradcam.php'; ?>
@@ -47,22 +68,18 @@ Template Name: Login Page
                     <h2 class="contact-title">Sign in to your account</h2>
                 </div>
                 <div class="col-lg-12">
-                    <!-- <form class="form-contact contact_form"  method="post" id="contactForm" > -->
                     <form action="" class="form-contact contact_form" method="post">
                         <div class="row">
                             <div class="col-12 mb-2">
                                 <label for="username">Username:</label>
-                                <input type="text" name="username" id="username" class="form-control"
-                                    placeholder="username" required="">
+                                <input type="text" name="username" id="username" class="form-control" placeholder="Username" required="">
                             </div>
                             <div class="col-12 mb-2">
                                 <label for="password">Password:</label>
-                                <input type="password" name="password" id="password" class="form-control"
-                                    placeholder="Password" required="">
+                                <input type="password" name="password" id="password" class="form-control" placeholder="Password" required="">
                             </div>
                             <div class="col-12 text-center mt-10">
-                                <button class="button button-contactForm btn_4 boxed-btn" type="submit">Login</button>
-                                <a href="http://localhost/G5_Case_Study_Project/home">Simulate Login</a> <!--to remove -->
+                                <button class="button button-contactForm btn_4 boxed-btn" type="submit" name="login">Login</button>
                             </div>
                         </div>
                     </form>
@@ -70,9 +87,7 @@ Template Name: Login Page
             </div>
         </div>
     </section>
-
-
-
+    
     <!-- footer  -->
     <?php include get_template_directory() . '/nav/ifooter.php'; ?>
     <!--/ footer  -->
@@ -108,6 +123,4 @@ Template Name: Login Page
 </body>
 
 </html>
-<?php
-get_footer();
-?>
+<?php get_footer(); ?>
