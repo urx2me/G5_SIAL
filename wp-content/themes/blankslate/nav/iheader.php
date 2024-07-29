@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <header>
         <div class="header-area ">
             <div id="sticky-header" class="main-header-area ">
@@ -16,9 +19,13 @@
                                     <ul id="navigation">
                                         <li><a href="http://localhost/G5_Case_Study_Project/">Home</a></li>
                                         <li><a href="http://localhost/G5_Case_Study_Project/recipes/">Recipes</a></li>
-
+                                    <?php if (isset($_SESSION['username'])): ?>
+                                        <li><a href="<?php echo home_url('/add-recipe'); ?>">Add Recipe</a></li>
+                                        <li><a href="http://localhost/G5_Case_Study_Project/logout/">Logout</a></li>
+                                    <?php else: ?>
                                         <li><a href="http://localhost/G5_Case_Study_Project/login/">Login</a></li>
                                         <li><a href="http://localhost/G5_Case_Study_Project/register/">Register</a></li>
+                                    <?php endif; ?>
                                     </ul>
                                 </nav>
                             </div>

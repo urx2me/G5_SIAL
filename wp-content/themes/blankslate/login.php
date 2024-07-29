@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
             // Prepare JavaScript for alert and redirection
             $redirect_url = home_url();
             echo '<script>
-                alert("Logged in as: ' . esc_js($username) . '");
+                alert("Welcome Back, ' . esc_js($username) . '");
                 window.location.href = "' . esc_url($redirect_url) . '";
             </script>';
             exit;

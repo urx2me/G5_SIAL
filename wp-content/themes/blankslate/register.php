@@ -16,7 +16,7 @@ if (isset($_POST['submit'])) {
             'user_pass' => $password, // WordPress will hash the password
             'user_email' => $email,
             'display_name' => $username,
-            'role' => 'subscriber'
+            'role' => 'contributer'
         ));
 
         if (!is_wp_error($user_id)) {
