@@ -46,7 +46,7 @@ if (!isset($_SESSION['username'])) {
                     <h2 class="contact-title">Add Your Recipe</h2>
                 </div>
                 <div class="col-lg-12">
-                    <form action="" class="form-contact contact_form" method="post" enctype="multipart/form-data">
+                    <form action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="form-contact contact_form" method="post" enctype="multipart/form-data">
                         <div class="row">
                             <div class="col-lg-6 mb-2">
                                 <label for="title">Title:</label>
@@ -91,23 +91,22 @@ if (!isset($_SESSION['username'])) {
                                 <textarea name="tips" class="form-control" id="tips" cols="20" rows="10" placeholder="Tips" required></textarea>
                             </div>
                             <div class="col-12 mb-2">
-                                <label for="thumbnail_recipe">Thumbnail_recipe:</label>
+                                <label for="thumbnail_recipe">Thumbnail Recipe:</label>
                                 <input type="file" name="thumbnail_recipe" id="thumbnail_recipe" class="form-control" accept="image/png, image/jpg, image/jpeg" required>
                             </div>
                         </div>
+                        <input type="hidden" name="action" value="add_recipe">
                         <div class="row">
                             <div class="col-12 text-center">
                                 <button class="button button-contactForm btn_4 boxed-btn" type="submit">Add New Recipe</button>
                             </div>
                         </div>
-                    <form action="" class="form-contact contact_form" method="post">
-                        <!-- Form content here -->
                     </form>
                 </div>
             </div>
         </div>
     </section>
-    
+
     <!-- footer  -->
     <?php include get_template_directory() . '/nav/ifooter.php'; ?>
     <!--/ footer  -->
