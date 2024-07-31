@@ -14,12 +14,8 @@ Template Name: Recipes Page
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- <link rel="manifest" href="site.webmanifest"> -->
-    <!-- Place favicon.ico in the root directory -->
-
     <!-- CSS here -->
     <?php include get_template_directory() . '/css.php'; ?>
-    <!-- <link rel="stylesheet" href="css/responsive.css"> -->
 </head>
 
 <body>
@@ -30,7 +26,6 @@ Template Name: Recipes Page
     <!-- header-start -->
     <?php include get_template_directory() . '/nav/iheader.php'; ?>
     <!-- header-end -->
-
 
     <!-- search  -->
     <?php include get_template_directory() . '/nav/isearch.php'; ?>
@@ -44,104 +39,57 @@ Template Name: Recipes Page
     <div class="recepie_area plus_padding">
         <div class="container">
             <div class="row">
-                <div class="col-xl-4 col-lg-4 col-md-6">
-                    <div class="single_recepie text-center">
-                        <div class="recepie_thumb">
-                            <a href="<?php echo get_template_directory_uri(); ?>/recipes_details.html">
-                                <img src="<?php echo get_template_directory_uri(); ?>/img/recepie/recpie_6.png" alt=""></a>
+                <?php
+                // WP Query to get all recipes
+                $args = array(
+                    'post_type' => 'recipe',
+                    'posts_per_page' => -1,
+                    'orderby' => 'date',
+                    'order' => 'DESC'
+                );
+                $recipe_query = new WP_Query($args);
+
+                if ($recipe_query->have_posts()) :
+                    while ($recipe_query->have_posts()) : $recipe_query->the_post();
+                        $recipe_thumbnail = get_the_post_thumbnail_url(get_the_ID(), 'medium');
+                        $recipe_title = get_the_title();
+                        $recipe_permalink = get_permalink();
+                        $recipe_date = get_the_date('d-M-Y');
+                ?>
+                        <div class="col-xl-4 col-lg-4 col-md-6">
+                            <div class="single_recepie text-center">
+                                <div class="recepie_thumb">
+                                    <a href="<?php echo esc_url($recipe_permalink); ?>">
+                                        <img src="<?php echo esc_url($recipe_thumbnail); ?>" alt="<?php echo esc_attr($recipe_title); ?>"></a>
+                                </div>
+                                <h3><a href="<?php echo esc_url($recipe_permalink); ?>"><?php echo esc_html($recipe_title); ?></a></h3>
+                                <p>
+                                    Published: <?php echo esc_html($recipe_date); ?>
+                                </p>
+                            </div>
                         </div>
-                        <h3><a href="<?php echo get_template_directory_uri(); ?>/recipes_details.html">Egg Manchurian</a></h3>
-                        <p>
-
-                            Published: 10-Jan-2023
-                        </p>
-                        <!-- <a href="recipes_details.html" class="line_btn">View Full Recipe</a> -->
-                    </div>
-                </div>
-                <div class="col-xl-4 col-lg-4 col-md-6">
-                    <div class="single_recepie text-center">
-                        <div class="recepie_thumb">
-                            <a href="<?php echo get_template_directory_uri(); ?>/recipes_details.html">
-                                <img src="<?php echo get_template_directory_uri(); ?>/img/recepie/recpie_2.png" alt=""></a>
-                        </div>
-                        <h3>Egg Manchurian</h3>
-                        <p>
-
-                            Published: 10-Jan-2023
-                        </p>
-                        <!-- <a href="recipes_details.html" class="line_btn">View Full Recipe</a> -->
-                    </div>
-                </div>
-                <div class="col-xl-4 col-lg-4 col-md-6">
-                    <div class="single_recepie text-center">
-                        <div class="recepie_thumb">
-                            <a href="<?php echo get_template_directory_uri(); ?>/recipes_details.html">
-                                <img src="<?php echo get_template_directory_uri(); ?>/img/recepie/recpie_1.png" alt=""></a>
-                        </div>
-                        <h3>Egg Manchurian</h3>
-                        <p>
-
-                            Published: 10-Jan-2023
-                        </p>
-                        <!-- <a href="recipes_details.html" class="line_btn">View Full Recipe</a> -->
-                    </div>
-                </div>
-                <div class="col-xl-4 col-lg-4 col-md-6">
-                    <div class="single_recepie text-center">
-                        <div class="recepie_thumb">
-                            <a href="<?php echo get_template_directory_uri(); ?>/recipes_details.html">
-                                <img src="<?php echo get_template_directory_uri(); ?>/img/recepie/recpie_3.png" alt=""></a>
-                        </div>
-                        <h3>Egg Manchurian</h3>
-                        <p>
-
-                            Published: 10-Jan-2023
-                        </p>
-                        <!-- <a href="recipes_details.html" class="line_btn">View Full Recipe</a> -->
-                    </div>
-                </div>
-                <div class="col-xl-4 col-lg-4 col-md-6">
-                    <div class="single_recepie text-center">
-                        <div class="recepie_thumb">
-                            <a href="<?php echo get_template_directory_uri(); ?>/recipes_details.html">
-                                <img src="<?php echo get_template_directory_uri(); ?>/img/recepie/recpie_4.png" alt=""></a>
-                        </div>
-                        <h3>Egg Manchurian</h3>
-                        <p>
-
-                            Published: 10-Jan-2023
-                        </p>
-                        <!-- <a href="recipes_details.html" class="line_btn">View Full Recipe</a> -->
-                    </div>
-                </div>
-                <div class="col-xl-4 col-lg-4 col-md-6">
-                    <div class="single_recepie text-center">
-                        <div class="recepie_thumb">
-                            <a href="<?php echo get_template_directory_uri(); ?>/recipes_details.html">
-                                <img src="<?php echo get_template_directory_uri(); ?>/img/recepie/recpie_5.png" alt=""></a>
-                        </div>
-                        <h3>Egg Manchurian</h3>
-                        <p>
-
-                            Published: 10-Jan-2023
-                        </p>
-                        <!-- <a href="recipes_details.html" class="line_btn">View Full Recipe</a> -->
-                    </div>
-                </div>
-
+                <?php
+                    endwhile;
+                    wp_reset_postdata();
+                else :
+                    echo '<p>No recipes found.</p>';
+                endif;
+                ?>
             </div>
         </div>
     </div>
     <!-- /recepie_area_start  -->
+
+    <!-- pagination -->
     <div class="pagination justify-content-center">
-        <a class="next page-numbers" href="">Previous </a>
-        <span aria-current="page" class="page-numbers current">1</span>
-        <a class="page-numbers" href="">2</a>
-        <a class="next page-numbers" href="">Next </a>
+        <?php
+        // Pagination code
+        echo paginate_links(array(
+            'total' => $recipe_query->max_num_pages
+        ));
+        ?>
     </div>
-
-
-
+    <!-- /pagination -->
 
     <!-- footer  -->
     <?php include get_template_directory() . '/nav/ibradcam.php'; ?>
