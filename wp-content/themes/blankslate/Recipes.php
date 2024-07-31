@@ -16,6 +16,14 @@ Template Name: Recipes Page
 
     <!-- CSS here -->
     <?php include get_template_directory() . '/css.php'; ?>
+    <style>
+        .single_recepie .recepie_thumb img {
+            width: 100%;
+            height: auto;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+    </style>
 </head>
 
 <body>
@@ -59,8 +67,13 @@ Template Name: Recipes Page
                         <div class="col-xl-4 col-lg-4 col-md-6">
                             <div class="single_recepie text-center">
                                 <div class="recepie_thumb">
-                                    <a href="<?php echo esc_url($recipe_permalink); ?>">
-                                        <img src="<?php echo esc_url($recipe_thumbnail); ?>" alt="<?php echo esc_attr($recipe_title); ?>"></a>
+                                    <?php if ($recipe_thumbnail) : ?>
+                                        <a href="<?php echo esc_url($recipe_permalink); ?>">
+                                            <img src="<?php echo esc_url($recipe_thumbnail); ?>" alt="<?php echo esc_attr($recipe_title); ?>"></a>
+                                    <?php else : ?>
+                                        <a href="<?php echo esc_url($recipe_permalink); ?>">
+                                            <img src="<?php echo get_template_directory_uri(); ?>/img/placeholder.png" alt="No Image Available"></a>
+                                    <?php endif; ?>
                                 </div>
                                 <h3><a href="<?php echo esc_url($recipe_permalink); ?>"><?php echo esc_html($recipe_title); ?></a></h3>
                                 <p>
