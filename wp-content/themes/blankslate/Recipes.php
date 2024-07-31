@@ -62,20 +62,21 @@ Template Name: Recipes Page
                         $recipe_thumbnail = get_the_post_thumbnail_url(get_the_ID(), 'medium');
                         $recipe_title = get_the_title();
                         $recipe_id = get_the_ID();
+                        $recipe_permalink = home_url('/recipe-details/?slug=' . get_post_field('post_name', get_post()));
                         $recipe_date = get_the_date('d-M-Y');
                 ?>
                         <div class="col-xl-4 col-lg-4 col-md-6">
                             <div class="single_recepie text-center">
                                 <div class="recepie_thumb">
                                     <?php if ($recipe_thumbnail) : ?>
-                                        <a href="<?php echo esc_url(get_template_directory_uri() . '/recipes_details.php?id=' . $recipe_id); ?>">
+                                        <a href="<?php echo esc_url($recipe_permalink); ?>">
                                             <img src="<?php echo esc_url($recipe_thumbnail); ?>" alt="<?php echo esc_attr($recipe_title); ?>"></a>
                                     <?php else : ?>
-                                        <a href="<?php echo esc_url(get_template_directory_uri() . '/recipes_details.php?id=' . $recipe_id); ?>">
+                                        <a href="<?php echo esc_url($recipe_permalink); ?>">
                                             <img src="<?php echo get_template_directory_uri(); ?>/img/placeholder.png" alt="No Image Available"></a>
                                     <?php endif; ?>
                                 </div>
-                                <h3><a href="<?php echo esc_url(get_template_directory_uri() . '/recipes_details.php?id=' . $recipe_id); ?>"><?php echo esc_html($recipe_title); ?></a></h3>
+                                <h3><a href="<?php echo esc_url($recipe_permalink); ?>"><?php echo esc_html($recipe_title); ?></a></h3>
                                 <p>Published: <?php echo esc_html($recipe_date); ?></p>
                             </div>
                         </div>

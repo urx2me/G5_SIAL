@@ -256,6 +256,7 @@ function create_recipe_post_type() {
         'public' => true,
         'show_ui' => true,
         'show_in_menu' => true,
+        'rewrite' => array('slug' => 'recipe'), // Adjust the slug as needed
         'menu_position' => 5,
         'show_in_admin_bar' => true,
         'show_in_nav_menus' => true,
@@ -385,4 +386,8 @@ function search_recipes() {
 add_action('wp_ajax_search_recipes', 'search_recipes');
 add_action('wp_ajax_nopriv_search_recipes', 'search_recipes');
 
+function custom_recipe_rewrite_rule() {
+    add_rewrite_rule('^recipe/([^/]*)/?', 'index.php?pagename=recipe-details&slug=$matches[1]', 'top');
+}
+add_action('init', 'custom_recipe_rewrite_rule');
 ?>
