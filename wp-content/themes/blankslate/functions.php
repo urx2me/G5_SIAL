@@ -333,4 +333,56 @@ function add_recipe_action() {
         exit;
     }
 }
+
+function enqueue_jquery() {
+    wp_enqueue_script('jquery');
+}
+add_action('wp_enqueue_scripts', 'enqueue_jquery');
+
+function enqueue_custom_scripts() {
+    wp_enqueue_script('jquery'); // Ensure jQuery is enqueued
+    wp_enqueue_script('custom-js', get_template_directory_uri() . '/js/custom.js', array('jquery'), null, true);
+}
+add_action('wp_enqueue_scripts', 'enqueue_custom_scripts');
+
+function search_recipes() {
+    if (isset($_GET['query'])) {
+        $query = sanitize_text_field($_GET['query']);
+        
+        $args = array(
+            'post_type' => 'recipe', // Replace with your custom post type if different
+            's' => $query,
+            'posts_per_page' => 5 // Limit the number of results
+        );
+        
+        $search_query = new WP_Query($args);
+        
+        if ($search_query->have_posts()) {
+            while ($search_query->have_posts()) {
+                $search_query->the_post();
+                ?>
+                <a href="<?php the_permalink(); ?>" class="result">
+                    <div class="d-flex">
+                        <?php if (has_post_thumbnail()): ?>
+                            <?php the_post_thumbnail('thumbnail', array('style' => 'height: 50px; width: 50px; object-fit: cover; margin-right: 10px;')); ?>
+                        <?php else: ?>
+                            <img src="<?php echo get_template_directory_uri(); ?>/img/recepie/default.png" alt="recipe" style="height: 50px; width: 50px; object-fit: cover; margin-right: 10px;">
+                        <?php endif; ?>
+                        <div class="content">
+                            <h4><?php the_title(); ?></h4>
+                        </div>
+                    </div>
+                </a>
+                <?php
+            }
+        } else {
+            echo '<p>No recipes found.</p>';
+        }
+        wp_reset_postdata();
+    }
+    wp_die();
+}
+add_action('wp_ajax_search_recipes', 'search_recipes');
+add_action('wp_ajax_nopriv_search_recipes', 'search_recipes');
+
 ?>

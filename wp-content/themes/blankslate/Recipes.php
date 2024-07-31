@@ -5,7 +5,7 @@ Template Name: Recipes Page
 //get_header();
 ?>
 <!doctype html>
-<html class="no-js" lang="zxx">
+<html class="no-js" lang="en">
 
 <head>
     <meta charset="utf-8">
@@ -28,22 +28,22 @@ Template Name: Recipes Page
 
 <body>
     <!--[if lte IE 9]>
-            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
-        <![endif]-->
+        <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+    <![endif]-->
 
     <!-- header-start -->
     <?php include get_template_directory() . '/nav/iheader.php'; ?>
     <!-- header-end -->
 
-    <!-- search  -->
+    <!-- search -->
     <?php include get_template_directory() . '/nav/isearch.php'; ?>
-    <!-- /end search  -->
+    <!-- /end search -->
 
-    <!-- bradcam_area  -->
+    <!-- bradcam_area -->
     <?php include get_template_directory() . '/nav/ibradcam.php'; ?>
-    <!-- /bradcam_area  -->
+    <!-- /bradcam_area -->
 
-    <!-- recepie_area_start  -->
+    <!-- recepie_area_start -->
     <div class="recepie_area plus_padding">
         <div class="container">
             <div class="row">
@@ -61,24 +61,22 @@ Template Name: Recipes Page
                     while ($recipe_query->have_posts()) : $recipe_query->the_post();
                         $recipe_thumbnail = get_the_post_thumbnail_url(get_the_ID(), 'medium');
                         $recipe_title = get_the_title();
-                        $recipe_permalink = get_permalink();
+                        $recipe_id = get_the_ID();
                         $recipe_date = get_the_date('d-M-Y');
                 ?>
                         <div class="col-xl-4 col-lg-4 col-md-6">
                             <div class="single_recepie text-center">
                                 <div class="recepie_thumb">
                                     <?php if ($recipe_thumbnail) : ?>
-                                        <a href="<?php echo esc_url($recipe_permalink); ?>">
+                                        <a href="<?php echo esc_url(get_template_directory_uri() . '/recipes_details.php?id=' . $recipe_id); ?>">
                                             <img src="<?php echo esc_url($recipe_thumbnail); ?>" alt="<?php echo esc_attr($recipe_title); ?>"></a>
                                     <?php else : ?>
-                                        <a href="<?php echo esc_url($recipe_permalink); ?>">
+                                        <a href="<?php echo esc_url(get_template_directory_uri() . '/recipes_details.php?id=' . $recipe_id); ?>">
                                             <img src="<?php echo get_template_directory_uri(); ?>/img/placeholder.png" alt="No Image Available"></a>
                                     <?php endif; ?>
                                 </div>
-                                <h3><a href="<?php echo esc_url($recipe_permalink); ?>"><?php echo esc_html($recipe_title); ?></a></h3>
-                                <p>
-                                    Published: <?php echo esc_html($recipe_date); ?>
-                                </p>
+                                <h3><a href="<?php echo esc_url(get_template_directory_uri() . '/recipes_details.php?id=' . $recipe_id); ?>"><?php echo esc_html($recipe_title); ?></a></h3>
+                                <p>Published: <?php echo esc_html($recipe_date); ?></p>
                             </div>
                         </div>
                 <?php
@@ -91,7 +89,7 @@ Template Name: Recipes Page
             </div>
         </div>
     </div>
-    <!-- /recepie_area_start  -->
+    <!-- /recepie_area_start -->
 
     <!-- pagination -->
     <div class="pagination justify-content-center">
@@ -104,38 +102,12 @@ Template Name: Recipes Page
     </div>
     <!-- /pagination -->
 
-    <!-- footer  -->
+    <!-- footer -->
     <?php include get_template_directory() . '/nav/ibradcam.php'; ?>
-    <!--/ footer  -->
+    <!-- /footer -->
 
     <!-- JS here -->
-    <script src="<?php echo get_template_directory_uri(); ?>/js/vendor/modernizr-3.5.0.min.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/vendor/jquery-1.12.4.min.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/popper.min.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/bootstrap.min.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/owl.carousel.min.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/isotope.pkgd.min.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/ajax-form.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/waypoints.min.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/jquery.counterup.min.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/imagesloaded.pkgd.min.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/scrollIt.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/jquery.scrollUp.min.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/wow.min.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/nice-select.min.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/jquery.slicknav.min.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/jquery.magnific-popup.min.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/plugins.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/gijgo.min.js"></script>
-
-    <!--contact js-->
-    <script src="<?php echo get_template_directory_uri(); ?>/js/contact.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/jquery.ajaxchimp.min.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/jquery.form.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/jquery.validate.min.js"></script>
-    <script src="<?php echo get_template_directory_uri(); ?>/js/mail-script.js"></script>
-
-    <script src="<?php echo get_template_directory_uri(); ?>/js/main.js"></script>
+    <?php include get_template_directory() . '/js.php'; ?>
 </body>
 
 </html>
