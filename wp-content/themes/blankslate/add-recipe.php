@@ -56,10 +56,15 @@ if (!isset($_SESSION['username'])) {
                                 <label for="category">Category:</label>
                                 <select name="category" id="category" class="form-control form-select" required>
                                     <option disabled selected>Select Category</option>
-                                    <option value="Desserts &amp; Drinks">Desserts &amp; Drinks</option>
-                                    <option value="Fish &amp; Seafood">Fish &amp; Seafood</option>
-                                    <option value="Rice &amp; Noodles">Rice &amp; Noodles</option>
-                                    <option value="Soups &amp; Appetisers">Soups &amp; Appetisers</option>
+                                    <?php
+                                    $categories = get_terms(array(
+                                        'taxonomy'   => 'recipe_category',
+                                        'hide_empty' => false, // Change to true if you want to hide empty categories
+                                    ));
+                                    foreach ($categories as $category) {
+                                        echo '<option value="' . esc_attr($category->term_id) . '">' . esc_html($category->name) . '</option>';
+                                    }
+                                    ?>
                                 </select>
                             </div>
                             <div class="col-12 mb-2">

@@ -270,12 +270,43 @@ function create_recipe_post_type() {
 }
 add_action('init', 'create_recipe_post_type', 0);
 
+function create_recipe_taxonomy() {
+    $labels = array(
+        'name'                       => _x('Recipe Categories', 'taxonomy general name', 'text_domain'),
+        'singular_name'              => _x('Recipe Category', 'taxonomy singular name', 'text_domain'),
+        'search_items'               => __('Search Recipe Categories', 'text_domain'),
+        'popular_items'              => __('Popular Recipe Categories', 'text_domain'),
+        'all_items'                  => __('All Recipe Categories', 'text_domain'),
+        'parent_item'                => __('Parent Recipe Category', 'text_domain'),
+        'parent_item_colon'          => __('Parent Recipe Category:', 'text_domain'),
+        'edit_item'                  => __('Edit Recipe Category', 'text_domain'),
+        'update_item'                => __('Update Recipe Category', 'text_domain'),
+        'add_new_item'               => __('Add New Recipe Category', 'text_domain'),
+        'new_item_name'              => __('New Recipe Category Name', 'text_domain'),
+        'separate_items_with_commas' => __('Separate categories with commas', 'text_domain'),
+        'add_or_remove_items'        => __('Add or remove categories', 'text_domain'),
+        'choose_from_most_used'      => __('Choose from the most used categories', 'text_domain'),
+        'not_found'                  => __('No categories found.', 'text_domain'),
+        'menu_name'                  => __('Recipe Categories', 'text_domain'),
+    );
+    $args = array(
+        'hierarchical'          => true, // Set to true if you want hierarchical taxonomy
+        'labels'                => $labels,
+        'show_ui'               => true,
+        'show_admin_column'     => true,
+        'query_var'             => true,
+        'rewrite'               => array('slug' => 'recipe-category'),
+    );
+    register_taxonomy('recipe_category', array('recipe'), $args);
+}
+add_action('init', 'create_recipe_taxonomy', 0);
+
 function add_recipe_action() {
     // Check if the form is submitted
     if (isset($_POST['title'])) {
         // Get the form data
         $title = sanitize_text_field($_POST['title']);
-        $category = sanitize_text_field($_POST['category']);
+        $category_id = intval($_POST['category']); // Use term ID
         $tags = sanitize_text_field($_POST['tags']);
         $energy = sanitize_text_field($_POST['energy']);
         $carbohydrate = sanitize_text_field($_POST['carbohydrate']);
@@ -301,6 +332,11 @@ function add_recipe_action() {
 
         // Insert the new post into the database
         $post_id = wp_insert_post($new_post);
+
+        // Set the post category
+        if (!empty($category_id)) {
+            wp_set_post_terms($post_id, array($category_id), 'recipe_category');
+        }
 
         // Set the post tags
         wp_set_post_tags($post_id, $tags);
@@ -335,6 +371,8 @@ function add_recipe_action() {
     }
 }
 
+
+
 function enqueue_jquery() {
     wp_enqueue_script('jquery');
 }
@@ -361,13 +399,15 @@ function search_recipes() {
         if ($search_query->have_posts()) {
             while ($search_query->have_posts()) {
                 $search_query->the_post();
+                $recipe_slug = get_post_field('post_name', get_the_ID());
+                $recipe_permalink = home_url('/recipe-details/?slug=' . $recipe_slug);
                 ?>
-                <a href="<?php the_permalink(); ?>" class="result">
+                <a href="<?php echo esc_url($recipe_permalink); ?>" class="result">
                     <div class="d-flex">
                         <?php if (has_post_thumbnail()): ?>
                             <?php the_post_thumbnail('thumbnail', array('style' => 'height: 50px; width: 50px; object-fit: cover; margin-right: 10px;')); ?>
                         <?php else: ?>
-                            <img src="<?php echo get_template_directory_uri(); ?>/img/recepie/default.png" alt="recipe" style="height: 50px; width: 50px; object-fit: cover; margin-right: 10px;">
+                            <img src="<?php echo esc_url(get_template_directory_uri() . '/img/recepie/default.png'); ?>" alt="recipe" style="height: 50px; width: 50px; object-fit: cover; margin-right: 10px;">
                         <?php endif; ?>
                         <div class="content">
                             <h4><?php the_title(); ?></h4>
@@ -383,11 +423,14 @@ function search_recipes() {
     }
     wp_die();
 }
+
 add_action('wp_ajax_search_recipes', 'search_recipes');
 add_action('wp_ajax_nopriv_search_recipes', 'search_recipes');
 
 function custom_recipe_rewrite_rule() {
-    add_rewrite_rule('^recipe/([^/]*)/?', 'index.php?pagename=recipe-details&slug=$matches[1]', 'top');
+    add_rewrite_rule('^recipe-details/?$', 'index.php?pagename=recipe-details', 'top');
+    add_rewrite_rule('^recipe-details/([^/]*)/?', 'index.php?pagename=recipe-details&slug=$matches[1]', 'top');
 }
 add_action('init', 'custom_recipe_rewrite_rule');
+
 ?>

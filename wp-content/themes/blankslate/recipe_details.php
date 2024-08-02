@@ -6,118 +6,253 @@ Template Name: Recipe Details Page
 // Ensure to include the header if needed
 // get_header();
 
-if (isset($_GET['slug'])) {
-    $slug = sanitize_text_field($_GET['slug']);
-    $recipe_query = new WP_Query(array(
-        'post_type' => 'recipe',
-        'name' => $slug,
-        'posts_per_page' => 1,
-    ));
-
-    if ($recipe_query->have_posts()) {
-        while ($recipe_query->have_posts()) : $recipe_query->the_post();
-
-            // Get the recipe details
-            $recipe_thumbnail = get_the_post_thumbnail_url(get_the_ID(), 'large');
-            $recipe_title = get_the_title();
-            $recipe_date = get_the_date('d-M-Y');
-            $recipe_category = get_the_terms(get_the_ID(), 'category');
-            $recipe_tags = get_the_terms(get_the_ID(), 'post_tag');
-            $recipe_energy = get_post_meta(get_the_ID(), 'energy', true);
-            $recipe_carbohydrate = get_post_meta(get_the_ID(), 'carbohydrate', true);
-            $recipe_protein = get_post_meta(get_the_ID(), 'protein', true);
-            $recipe_ingredients = get_post_meta(get_the_ID(), 'ingredients', true);
-            $recipe_method = get_the_content();
-            $recipe_tips = get_post_meta(get_the_ID(), 'tips', true);
-            $recipe_content = get_the_content();
-
-            // Display the recipe details
+// Handle Comment Submission
+if (isset($_POST['comment_post_ID'])) {
+    $post_id = intval($_POST['comment_post_ID']);
+    // Redirect to the same page with the appropriate recipe_id and comments section
+    $redirect_url = add_query_arg(array(
+        'slug' => get_post_field('post_name', $post_id),
+        'comment_status' => 'approved'
+    ), get_permalink($post_id));
+    wp_redirect($redirect_url);
+    exit;
+}
 ?>
-            <!doctype html>
-            <html class="no-js" lang="zxx">
+    <?php include get_template_directory() . '/css.php'; ?>
 
-            <head>
-                <meta charset="utf-8">
-                <meta http-equiv="x-ua-compatible" content="ie=edge">
-                <title><?php echo esc_html($recipe_title); ?> - Recipe Details</title>
-                <meta name="description" content="">
-                <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- header-start -->
+    <?php include get_template_directory() . '/nav/iheader.php'; ?>
+    <!-- header-end -->
 
-                <!-- CSS here -->
-                <?php include get_template_directory() . '/css.php'; ?>
-            </head>
+    <!-- search -->
+    <?php include get_template_directory() . '/nav/isearch.php'; ?>
+    <!-- /end search -->
 
-            <body>
-                <!-- header-start -->
-                <?php include get_template_directory() . '/nav/iheader.php'; ?>
-                <!-- header-end -->
+    <!-- bradcam_area -->
+    <?php include get_template_directory() . '/nav/ibradcam.php'; ?>
+    <!-- /bradcam_area -->
 
-                <!-- search  -->
-                <?php include get_template_directory() . '/nav/isearch.php'; ?>
-                <!-- /search  -->
+<!--================ Blog Area =================-->
+<section class="blog_area single-post-area section-padding">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 posts-list">
+                <?php
+                // Retrieve the recipe by slug
+                $recipe_slug = isset($_GET['slug']) ? sanitize_text_field($_GET['slug']) : '';
 
-                <!-- bradcam_area  -->
-                <?php include get_template_directory() . '/nav/ibradcam.php'; ?>
-                <!-- /bradcam_area  -->
+                if ($recipe_slug) :
+                    $args = array(
+                        'name'        => $recipe_slug,
+                        'post_type'    => 'recipe', // Ensure this matches your custom post type if applicable
+                        'post_status'  => 'publish',
+                        'numberposts'  => 1
+                    );
+                    $recipe_query = get_posts($args);
 
-                <section class="contact-section section_padding">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-12">
-                                <h2 class="contact-title"><?php echo esc_html($recipe_title); ?></h2>
-                            </div>
-                            <div class="col-lg-12 single_recepie_details">
-                                <?php if ($recipe_thumbnail) : ?>
-                                    <div class="recepie_thumb">
-                                        <img src="<?php echo esc_url($recipe_thumbnail); ?>" alt="<?php echo esc_attr($recipe_title); ?>">
-                                    </div>
+                    if (!empty($recipe_query)) :
+                        $recipe = $recipe_query[0];
+                        setup_postdata($recipe);
+                        ?>
+
+                        <div class="single-post">
+                            <div class="feature-img">
+                                <?php
+                                if (has_post_thumbnail($recipe->ID)) :
+                                    echo get_the_post_thumbnail($recipe->ID, 'large', array('class' => 'img-fluid'));
+                                else : ?>
+                                    <img class="img-fluid" src="<?php echo get_template_directory_uri(); ?>/img/default-recipe.jpg" alt="Default Recipe Image">
                                 <?php endif; ?>
-                                <div class="recepie_content">
-                                    <p>Published on: <?php echo esc_html($recipe_date); ?></p>
-                                    <?php if ($recipe_category) : ?>
-                                        <p>Category: <?php echo esc_html($recipe_category[0]->name); ?></p>
-                                    <?php endif; ?>
-                                    <?php if ($recipe_tags) : ?>
-                                        <p>Tags: <?php
-                                            $tags = array();
-                                            foreach ($recipe_tags as $tag) {
-                                                $tags[] = $tag->name;
+                            </div>
+                            <div class="blog_details">
+                                <h2><?php echo esc_html($recipe->post_title); ?></h2>
+
+                                <!-- Display Categories -->
+                                <ul class="blog-info-link mt-3 mb-4">
+                                    <li>Category: 
+                                        <?php 
+                                        $categories = get_the_terms($recipe->ID, 'category');
+                                        if ($categories && !is_wp_error($categories)) {
+                                            $category_links = array();
+                                            foreach ($categories as $category) {
+                                                $category_link = esc_url(home_url('/category-page/?category=' . $category->slug));
+                                                $category_links[] = '<a href="' . $category_link . '">' . esc_html($category->name) . '</a>';
                                             }
-                                            echo esc_html(implode(', ', $tags));
-                                            ?>
-                                        </p>
-                                    <?php endif; ?>
+                                            echo implode(', ', $category_links);
+                                        } else {
+                                            echo 'No category assigned';
+                                        }
+                                        ?>
+                                    </li>
 
-                                    <div class="nutrition_info">
-                                        <h4>Nutrition Information (per serving):</h4>
-                                        <ul>
-                                            <li>Energy: <?php echo esc_html($recipe_energy); ?> kcal</li>
-                                            <li>Carbohydrate: <?php echo esc_html($recipe_carbohydrate); ?> g</li>
-                                            <li>Protein: <?php echo esc_html($recipe_protein); ?> g</li>
-                                        </ul>
+                                    <!-- Display Tags -->
+                                    <li>Tags: 
+                                        <?php 
+                                        $tags = get_the_terms($recipe->ID, 'post_tag');
+                                        if ($tags && !is_wp_error($tags)) {
+                                            $tag_links = array();
+                                            foreach ($tags as $tag) {
+                                                $tag_link = esc_url(home_url('/tag-page/?tag=' . $tag->slug));
+                                                $tag_links[] = '<a href="' . $tag_link . '">' . esc_html($tag->name) . '</a>';
+                                            }
+                                            echo implode(', ', $tag_links);
+                                        } else {
+                                            echo 'No tags assigned';
+                                        }
+                                        ?>
+                                    </li>
+                                </ul>
+          
+                                <!-- Display Nutrition Information -->
+                                <div class="recipe-nutrition-info">
+                                    <ul class="blog-info-link mt-3 mb-4">
+                                        <li>Energy: <?php echo esc_html(get_post_meta($recipe->ID, 'energy', true)); ?> kcal</li>
+                                        <li>Carbohydrate: <?php echo esc_html(get_post_meta($recipe->ID, 'carbohydrate', true)); ?> g</li>
+                                        <li>Protein: <?php echo esc_html(get_post_meta($recipe->ID, 'protein', true)); ?> g</li>
+                                    </ul>
+                                </div>
+                                <!-- Rating -->
+                                <?php
+                                    if (function_exists('crp_display_rating')) {
+                                        crp_display_rating($recipe->ID);
+                                    }
+                                ?>
+                                <!-- End Rating -->
+                                <!-- Display Ingredients -->
+                                <h4>Ingredients</h4>
+                                <ul>
+                                    <?php
+                                    $ingredients = get_post_meta($recipe->ID, 'ingredients', true);
+                                    if ($ingredients) {
+                                        $ingredients = maybe_unserialize($ingredients);
+                                        if (is_array($ingredients)) {
+                                            foreach ($ingredients as $ingredient) {
+                                                echo '<li>' . esc_html($ingredient) . '</li>';
+                                            }
+                                        } else {
+                                            echo '<p>' . esc_html($ingredients) . '</p>';
+                                        }
+                                    } else {
+                                        echo '<p>No ingredients found</p>';
+                                    }
+                                    ?>
+                                </ul>
+
+                                <!-- Display Methods -->
+                                <h4>Methods</h4>
+                                <ul>
+                                    <?php
+                                    $methods = get_post_meta($recipe->ID, 'method', true);
+                                    if (!empty($methods)) {
+                                        echo nl2br(esc_html($methods));
+                                    } else {
+                                        echo '<p>No method found</p>';
+                                    }
+                                    ?>
+                                </ul>
+
+                                <!-- Display Tips -->
+                                <div class="quote-wrapper">
+                                    <div class="quotes">
+                                        <h4>Tips</h4>
+                                        <p><?php 
+                                        $tips = get_post_meta($recipe->ID, 'tips', true);
+                                        if ($tips) {
+                                            echo esc_html($tips);
+                                        } else {
+                                            echo '<p>No tips provided</p>';
+                                        }
+                                        ?></p>
                                     </div>
-
-                                    <div class="ingredients">
-                                        <h4>Ingredients:</h4>
-                                        <p><?php echo wp_kses_post($recipe_ingredients); ?></p>
-                                    </div>
-
-                                    <div class="method">
-                                        <h4>Method:</h4>
-                                        <p><?php echo wp_kses_post($recipe_method); ?></p>
-                                    </div>
-
-                                    <div class="tips">
-                                        <h4>Tips:</h4>
-                                        <p><?php echo wp_kses_post($recipe_tips); ?></p>
-                                    </div>
-
-                                    
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </section>
+                        <!-- Display Comments -->
+                        <div class="comments-area">
+                            <?php
+                            // Ensure recipe ID is properly retrieved
+                            if ($recipe) :
+                                $recipe_id = $recipe->ID;
+
+                                if (comments_open($recipe_id) || get_comments_number($recipe_id) > 0) :
+                                    // Display existing comments
+                                    $args = array('post_id' => $recipe_id);
+                                    $comments = get_comments($args);
+                                    $comments_count = count($comments);
+                                    ?>
+                                    <h4><?php echo esc_html($comments_count); ?> Comments</h4>
+                                    <?php foreach ($comments as $comment): ?>
+                                        <?php
+                                        // Retrieve profile picture URL
+                                        $user_id = $comment->user_id;
+                                        $profile_picture = get_user_meta($user_id, 'profile_picture', true);
+                                        ?>
+                                        <div class="comment-list">
+                                            <div class="single-comment justify-content-between d-flex">
+                                                <div class="user justify-content-between d-flex">
+                                                    <div class="thumb" style="height: 50px; width: 50px;">
+                                                        <img src="<?php echo esc_url($profile_picture); ?>" alt="<?php echo esc_attr($comment->comment_author); ?>" style="width: 50px; height: 50px; border-radius: 50%;">
+                                                    </div>
+                                                    <div class="desc">
+                                                        <p class="comment">
+                                                            <?php echo esc_html($comment->comment_content); ?>
+                                                        </p>
+                                                        <div class="d-flex justify-content-between">
+                                                            <div class="d-flex align-items-center">
+                                                                <h5>
+                                                                    <a href="#"><?php echo esc_html($comment->comment_author); ?></a>
+                                                                </h5>
+                                                                <p class="date"><?php echo esc_html(date_i18n(get_option('date_format'), strtotime($comment->comment_date))); ?></p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                                <!-- Display comment form -->
+                                <?php if (is_user_logged_in()) : ?>
+                                    <?php if (comments_open($recipe_id)) : ?>
+                                        <div class="comment-form">
+                                            <div id="comments">
+                                                <div id="respond" class="comment-respond">
+                                                    <h3 id="reply-title" class="comment-reply-title">Leave a Reply <small><a rel="nofollow" id="cancel-comment-reply-link" href="" style="display:none;">Cancel reply</a></small></h3>
+                                                    <form action="<?php echo site_url('/wp-comments-post.php'); ?>" method="post" id="commentform" class="comment-form">
+                                                        <p class="logged-in-as">Logged in as <?php echo wp_get_current_user()->display_name; ?>. <a href="<?php echo admin_url('profile.php'); ?>">Edit your profile</a>. <a href="<?php echo wp_logout_url(get_permalink()); ?>">Log out?</a> <span class="required-field-message">Required fields are marked <span class="required">*</span></span></p>
+                                                        <p class="comment-form-comment"><label for="comment">Comment <span class="required">*</span></label><textarea id="comment" name="comment" cols="45" rows="8" maxlength="65525" required="required"></textarea></p>
+                                                        <p class="form-submit"><input name="submit" type="submit" id="submit" class="submit" value="Post Comment"></p>
+                                                        <input type="hidden" name="comment_post_ID" value="<?php echo esc_attr($recipe_id); ?>">
+                                                        <?php comment_id_fields(); ?>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php else : ?>
+                                        <p class="no-comments">Comments are closed.</p>
+                                    <?php endif; ?>
+                                <?php else : ?>
+                                    <p>You must be logged in to post a comment.</p>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
+                        <!-- End Comments -->
+                    <?php
+                    else :
+                        echo '<p>Recipe not found.</p>';
+                    endif;
+                    wp_reset_postdata();
+                else :
+                    echo '<p>Invalid recipe slug.</p>';
+                endif;
+                ?>
+            </div>
+            <!-- Sidebar -->
+            <?php get_sidebar(); ?>
+        </div>
+    </div>
+</section>
+<!--================ Blog Area end =================-->
 
                 <!-- footer  -->
                 <?php include get_template_directory() . '/nav/ifooter.php'; ?>
@@ -156,14 +291,6 @@ if (isset($_GET['slug'])) {
             </html>
 
 <?php
-        endwhile; // End while loop for recipe query
-    } else {
-        echo '<p>No recipe found.</p>';
-    }
-} else {
-    echo '<p>No recipe specified.</p>';
-}
-
 // Optionally include footer if needed
 // get_footer();
 ?>
