@@ -265,6 +265,7 @@ function create_recipe_post_type() {
         'exclude_from_search' => false,
         'publicly_queryable' => true,
         'capability_type' => 'post',
+        'supports'  => array('title', 'editor', 'thumbnail', 'comments'), // Add 'comments' here
     );
     register_post_type('recipe', $args);
 }
@@ -438,4 +439,45 @@ function custom_recipe_rewrite_rule() {
 }
 add_action('init', 'custom_recipe_rewrite_rule');
 
+// Ensure comments are always open for 'page' post type
+function force_comments_open_for_recipe($open, $post_id) {
+    $post = get_post($post_id);
+    if ($post && $post->post_type === 'page') {
+        return true; // Force comments open for pages
+    }
+    return $open;
+}
+add_filter('comments_open', 'force_comments_open_for_recipe', 10, 2);
+
+// Add theme support for comments
+add_theme_support('comments');
+
+add_action('pre_comment_on_post', 'preserve_recipe_id');
+
+function preserve_recipe_id() {
+    if (isset($_POST['recipe_id'])) {
+        $recipe_id = intval($_POST['recipe_id']);
+        if ($recipe_id) {
+            // Ensure the recipe_id is passed correctly
+            $_POST['comment_post_ID'] = $recipe_id;
+        }
+    }
+}
+
+add_action('comment_post', 'handle_comment_redirect');
+
+function handle_comment_redirect($comment_id) {
+    // Check if the comment is for a recipe
+    $comment = get_comment($comment_id);
+    if ($comment) {
+        $post_id = $comment->comment_post_ID;
+        $post = get_post($post_id);
+
+        if ($post && $post->post_type === 'page') {
+            // Redirect to the recipe page with comment ID
+            wp_redirect(get_permalink($post_id) . '?comment_id=' . $comment_id);
+            exit;
+        }
+    }
+}
 ?>

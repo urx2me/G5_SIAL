@@ -1,63 +1,59 @@
+<?php if (is_user_logged_in()) : ?>
 <div id="comments">
-<?php
-if ( have_comments() ) :
+    <?php
+    global $post;
+    $post_id = $post->ID;
+    if (comments_open($post_id) || get_comments_number($post_id)) :
+    ?>
+        <div class="comments-area">
+            <?php
+            if (get_comments_number($post_id)) :
+                $comments = get_comments(array('post_id' => $post_id));
+                echo '<h2 class="comments-title">' . esc_html(get_comments_number($post_id)) . ' Comments</h2>';
+                foreach ($comments as $comment) :
+                    // Retrieve the profile picture URL from user meta
+                    $user_id = $comment->user_id;
+                    $profile_picture = get_user_meta($user_id, 'profile_picture', true);
 
-$args = array(
-    'post_id' => get_the_ID(),   // Use post_id, not post_ID
-);
-$comments = get_comments($args);
-$comments_count = count(get_comments( $args ));
-?>
-<div class="comments-area">
-    
-<h2 class="comments-title"><?php echo $comments_count; ?> Comments</h2>
-<?php foreach($comments as $comment): ?>
-<div class="comment-list">
-    <div class="single-comment justify-content-between d-flex">
-        <div class="user justify-content-between d-flex">
-            <div class="thumb" style="height: 50px; width: 50px;">
-                <img src="" alt="" style="height: 100%;width: 100%;object-fit: cover;border-radius: 50%;">
-            </div>
-            <div class="desc">
-                <p class="comment">
-                    <?php echo $comment->comment_author; ?>
-                </p>
-                <div class="d-flex justify-content-between">
-                    <div class="d-flex align-items-center">
-                    <h5>
-                        <a href="#"><?php  echo $comment->comment_content;?></a>
-                    </h5>
-                    <p class="date"><?php echo date_format(date_create($comment->comment_date), 'Y-m-d H:i:s'); ?></p>
+
+                    ?>
+                        
+                    <div class="comment">
+                        <div class="comment-author">
+                            <?php if ($profile_picture) : ?>
+                                <img src="<?php echo esc_url($profile_picture); ?>" alt="<?php echo esc_attr($comment->comment_author); ?>" style="width: 50px; height: 50px; border-radius: 50%;">
+                            <?php else : ?>
+                                <img src="<?php echo esc_url(get_avatar_url($comment->comment_author_email)); ?>" alt="<?php echo esc_attr($comment->comment_author); ?>" style="width: 50px; height: 50px; border-radius: 50%;">
+                            <?php endif; ?>
+                        </div>
+                        <div class="comment-content">
+                            <div class="comment-author-name"><?php echo esc_html($comment->comment_author); ?></div>
+                            <div class="comment-text"><?php echo esc_html($comment->comment_content); ?></div>
+                            <div class="comment-date"><?php echo esc_html(date_i18n(get_option('date_format'), strtotime($comment->comment_date))); ?></div>
+                        </div>
                     </div>
-                </div>
-            </div>
+                <?php
+                endforeach;
+            endif;
+            ?>
         </div>
-    </div>
-</div>
-<?php endforeach; ?>
-</div>
 
-<?php
-
-
-if ( !empty( $comments_by_type['pings'] ) ) :
-$ping_count = count( $comments_by_type['pings'] );
-?>
-<section id="trackbacks-list" class="comments">
-<h2 class="comments-title"><?php echo '<span class="ping-count">' . esc_html( $ping_count ) . '</span> ' . esc_html( _nx( 'Trackback or Pingback', 'Trackbacks and Pingbacks', $ping_count, 'comments count', 'blankslate' ) ); ?></h2>
-<ul>
-<?php wp_list_comments( 'type=pings&callback=blankslate_custom_pings' ); ?>
-</ul>
-</section>
-<?php
-endif;
-endif;
-// global $post;
-// $author_id = $post->post_author;
-// if ($author_id == get_current_user_id()) {
-//     echo "You cannot comment your own post";
-// } else {
-    if ( comments_open() ) { comment_form(); }
-// }
-?>
+        <?php if (comments_open($post_id)) : ?>
+            <div class="comment-form">
+                <?php
+                comment_form(array(
+                    'title_reply' => 'Leave a Comment',
+                ));
+                ?>
+            </div>
+        <?php else : ?>
+            <p>Comments are closed.</p>
+        <?php endif; ?>
+    <?php else : ?>
+        <p>Comments are closed.</p>
+    <?php endif; ?>
 </div>
+<?php else : ?>
+    <!-- Message for non-logged-in users -->
+    <p>You must be logged in to post a comment.</p>
+<?php endif; ?>

@@ -62,7 +62,8 @@ Template Name: Recipes Page
                         $recipe_thumbnail = get_the_post_thumbnail_url(get_the_ID(), 'medium');
                         $recipe_title = get_the_title();
                         $recipe_id = get_the_ID();
-                        $recipe_permalink = home_url('/recipe-details/?slug=' . get_post_field('post_name', get_post()));
+                        // Update permalink to include recipe_id
+                        $recipe_permalink = home_url('/recipe-details/?recipe_id=' . $recipe_id); // Change here
                         $recipe_date = get_the_date('d-M-Y');
                 ?>
                         <div class="col-xl-4 col-lg-4 col-md-6">
@@ -86,6 +87,7 @@ Template Name: Recipes Page
                 else :
                     echo '<p>No recipes found.</p>';
                 endif;
+                
                 ?>
             </div>
         </div>
