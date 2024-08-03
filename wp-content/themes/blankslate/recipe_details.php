@@ -71,7 +71,7 @@ if (isset($_POST['comment_post_ID'])) {
                                 <ul class="blog-info-link mt-3 mb-4">
                                     <li>Category: 
                                         <?php 
-                                        $categories = get_the_terms($recipe->ID, 'category');
+                                        $categories = get_the_terms($recipe->ID, 'recipe_category');
                                         if ($categories && !is_wp_error($categories)) {
                                             $category_links = array();
                                             foreach ($categories as $category) {

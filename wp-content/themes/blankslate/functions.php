@@ -319,7 +319,7 @@ function add_recipe_action() {
         $new_post = array(
             'post_title' => $title,
             'post_type' => 'recipe',
-            'post_content' => $method,
+            'post_content' => '', // Keep post content empty if you store method in meta
             'post_status' => 'publish',
             'meta_input' => array(
                 'energy' => $energy,
@@ -327,8 +327,10 @@ function add_recipe_action() {
                 'protein' => $protein,
                 'ingredients' => $ingredients,
                 'tips' => $tips,
+                'method' => $method, // Store method in meta
             ),
         );
+        
 
         // Insert the new post into the database
         $post_id = wp_insert_post($new_post);
@@ -338,8 +340,11 @@ function add_recipe_action() {
             wp_set_post_terms($post_id, array($category_id), 'recipe_category');
         }
 
-        // Set the post tags
-        wp_set_post_tags($post_id, $tags);
+       // Set the post tags
+        if (!empty($tags)) {
+            wp_set_object_terms($post_id, explode(',', $tags), 'post_tag'); // Assuming tags are stored as comma-separated values
+        }
+
 
         // Upload and attach the thumbnail image
         if (!empty($_FILES['thumbnail_recipe']['name'])) {
