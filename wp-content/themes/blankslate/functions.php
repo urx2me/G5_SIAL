@@ -479,7 +479,6 @@ function handle_comment_redirect($comment_id) {
         }
     }
 }
-
 // Display recipe rating
 function display_recipe_rating($post_id) {
     if (!is_user_logged_in()) {
@@ -525,6 +524,4 @@ function display_recipe_rating($post_id) {
     <?php
     return ob_get_clean();
 }
-
-
 ?>

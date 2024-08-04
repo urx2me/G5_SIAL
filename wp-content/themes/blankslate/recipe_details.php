@@ -120,8 +120,38 @@ $sum_ratings = is_array($all_ratings) ? array_sum($all_ratings) : 0;
 $average_rating = $total_ratings ? round($sum_ratings / $total_ratings, 1) : 0;
 ?>
 
-<div class="crp-rating" data-recipe-id="<?php echo esc_attr($recipe_id); ?>" data-average-rating="<?php echo esc_attr($average_rating); ?>">
-    <div class="crp-stars">
+<style>
+   .crp-stars {
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    .crp-stars .star {
+        color: #FFDD44; /* Gold color for stars */
+        display: inline-block;
+        margin-right: 5px;
+        transition: color 0.2s; /* Smooth transition for color change */
+    }
+
+    .crp-stars .star:hover {
+        color: black; /* Color of the hovered star remains gold */
+    }
+
+    .crp-stars .star:hover ~ .star {
+        color: black; /* Change color of all stars after the hovered star */
+    }
+
+    .crp-stars .star:hover {
+        color: #FFDD44; /* Prevents changing the color of the hovered star */
+    }
+
+    .crp-stars .star:hover ~ .star:hover {
+        color: #FFDD44; /* Keep the hovered star gold */
+    }
+</style>
+
+<div class="crp-rating" data-recipe-id="<?php echo esc_attr($recipe_id); ?>">
+    <div class="crp-stars" data-user-rating="<?php echo esc_attr(get_post_meta($recipe_id, 'crp_user_rating_' . get_current_user_id(), true)); ?>">
         <?php for ($i = 1; $i <= 5; $i++) : ?>
             <span class="star" data-value="<?php echo $i; ?>">&#9733;</span>
         <?php endfor; ?>
@@ -136,7 +166,7 @@ $average_rating = $total_ratings ? round($sum_ratings / $total_ratings, 1) : 0;
             $user_id = get_current_user_id();
             $user_rating = get_post_meta($recipe_id, 'crp_user_rating_' . $user_id, true);
             if ($user_rating) {
-                echo '<p>You have rated</p>';
+                echo '<p>You have rated: ' . esc_html($user_rating) . ' star(s)</p>';
             } else {
                 echo '<p>Click on the star(s) to rate</p>';
             }
@@ -147,6 +177,37 @@ $average_rating = $total_ratings ? round($sum_ratings / $total_ratings, 1) : 0;
         <p>Average Rating: <?php echo esc_html($average_rating); ?> (<?php echo esc_html($total_ratings); ?> ratings)</p>
     </div>
 </div>
+<script src="<?php echo get_template_directory_uri(); ?>/js/vendor/jquery-1.12.4.min.js"></script>
+<script>
+    jQuery(document).ready(function($) {
+        $('.crp-stars .star').on('click', function() {
+            var rating = $(this).data('value');
+            var recipeId = $(this).closest('.crp-rating').data('recipe-id');
+
+            // Check if user is logged in
+            <?php if (is_user_logged_in()) : ?>
+                $.post(
+                    '<?php echo admin_url('admin-ajax.php'); ?>',
+                    {
+                        action: 'crp_submit_rating',
+                        rating: rating,
+                        recipe_id: recipeId,
+                        nonce: '<?php echo wp_create_nonce('crp_nonce'); ?>'
+                    },
+                    function(response) {
+                        if (response.success) {
+                            // Optionally update the UI with the new average rating
+                            location.reload(); // Refresh the page to see updated ratings
+                        } else {
+                            alert(response.data);
+                        }
+                    }
+                );
+            <?php endif; ?>
+        });
+    });
+</script>
+
 
 
 
