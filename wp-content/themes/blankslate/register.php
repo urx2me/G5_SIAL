@@ -24,9 +24,14 @@ if (isset($_POST['submit'])) {
             $upload_dir = wp_upload_dir();
             if (!empty($_FILES['userProfileImage']['name'])) {
                 $profileImage = $_FILES['userProfileImage'];
-                $profileImageName = $user_id . '_' . $profileImage['name'];
-                move_uploaded_file($profileImage['tmp_name'], $upload_dir['path'] . '/' . $profileImageName);
-                update_user_meta($user_id, 'profile_image', $upload_dir['url'] . '/' . $profileImageName);
+                $profileImageName = $user_id . '_' . basename($profileImage['name']);
+                $upload_path = $upload_dir['path'] . '/' . $profileImageName;
+                
+                if (move_uploaded_file($profileImage['tmp_name'], $upload_path)) {
+                    update_user_meta($user_id, 'profile_picture', $upload_dir['url'] . '/' . $profileImageName);
+                } else {
+                    echo '<script>alert("Profile image upload failed")</script>';
+                }
             }
             wp_redirect(site_url() . '/login/');
             exit;

@@ -217,7 +217,7 @@ $average_rating = $total_ratings ? round($sum_ratings / $total_ratings, 1) : 0;
                                         <?php
                                         // Retrieve profile picture URL
                                         $user_id = $comment->user_id;
-                                        $profile_picture = get_user_meta($user_id, 'profile_picture', true);
+                                        $profile_picture = get_user_meta($user_id, 'profile_picture', true); // Adjusted the meta key to 'profile_image'
                                         ?>
                                         <div class="comment-list">
                                             <div class="single-comment justify-content-between d-flex">
@@ -268,9 +268,10 @@ $average_rating = $total_ratings ? round($sum_ratings / $total_ratings, 1) : 0;
                                 <?php else : ?>
                                     <b>You must be logged in to comment.</b>
                                 <?php endif; ?>
-                                <?php else :?>
-                                    <p>No recipe ID specified</p>
+                            <?php else :?>
+                                <p>No recipe ID specified</p>
                             <?php endif; ?>
+                            
                         </div><!-- .comments-area -->
                         <script type="text/javascript">
                             document.addEventListener('DOMContentLoaded', function() {
