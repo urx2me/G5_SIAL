@@ -23,19 +23,20 @@
 </head>
 <!-- CSS here -->
 <?php include get_template_directory() . '/css.php'; ?>
-<!-- bradcam_area  -->
-<div class="bradcam_area bradcam_bg_1">
-        <div class="container">
-            <div class="row">
-                <div class="col-xl-12">
-                    <div class="bradcam_text text-center">
-                        <h3>Food Recipe</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- /bradcam_area  -->
+
+
+    <!-- header-start -->
+    <?php include get_template_directory() . '/nav/iheader.php'; ?>
+    <!-- header-end -->
+
+    <!-- search -->
+    <?php include get_template_directory() . '/nav/isearch.php'; ?>
+    <!-- /end search -->
+
+    <!-- bradcam_area -->
+    <?php include get_template_directory() . '/nav/ibradcam.php'; ?>
+    <!-- /bradcam_area -->
+
 <!-- recepie_area_start  -->
 <div class="recepie_area">
     <div class="container">
@@ -247,7 +248,9 @@
 <!-- JS here -->
 <?php include get_template_directory() . '/js.php'; ?>
 
-
+<!-- footer  -->
+<?php include get_template_directory() . '/nav/ifooter.php'; ?>
+<!--/ footer  -->
 
 <!-- Add CSS to limit image size and apply object-fit -->
 <style>
