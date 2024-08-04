@@ -72,7 +72,8 @@ if (isset($_POST['comment_post_ID'])) {
                                         if ($categories && !is_wp_error($categories)) {
                                             $category_links = array();
                                             foreach ($categories as $category) {
-                                                $category_link = esc_url(home_url('/category-page/?category=' . $category->slug));
+                                                // Use term_id instead of slug
+                                                $category_link = esc_url(home_url('/recipe-categories/?category_id=' . $category->term_id));
                                                 $category_links[] = '<a href="' . $category_link . '">' . esc_html($category->name) . '</a>';
                                             }
                                             echo implode(', ', $category_links);
@@ -81,6 +82,8 @@ if (isset($_POST['comment_post_ID'])) {
                                         }
                                         ?>
                                     </li>
+                                </ul>
+
 
                                     <!-- Display Tags -->
                                     <li>Tags: 
@@ -319,7 +322,7 @@ $average_rating = $total_ratings ? round($sum_ratings / $total_ratings, 1) : 0;
                             foreach ($categories as $category) {
                                 $category_count = $category->count;
                                 $category_slug = $category->slug;
-                                $category_link = esc_url(home_url('/category-page/?category=' . $category_slug));
+                                $category_link = esc_url(home_url('/recipe-categories/?category_id=' . $category->term_id));
                                 ?>
                                 <li>
                                     <a href="<?php echo $category_link; ?>" class="d-flex">
