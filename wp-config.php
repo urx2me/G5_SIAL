@@ -23,10 +23,10 @@
 define( 'DB_NAME', 'g5_case_study_db' );
 
 /** Database username */
-define( 'DB_USER', 'sqladmin' );
+define( 'DB_USER', 'root' );
 
 /** Database password */
-define( 'DB_PASSWORD', 'g5_sqladmin' );
+define( 'DB_PASSWORD', 'root' );
 
 /** Database hostname */
 define( 'DB_HOST', 'localhost' );

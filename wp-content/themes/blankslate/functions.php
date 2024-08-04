@@ -338,7 +338,7 @@ function add_recipe_action() {
 
         // Set the post category
         if (!empty($category_id)) {
-            wp_set_post_terms($post_id, array($category_id), 'recipe_category');
+            wp_set_post_terms($post_id, array($category_id), 'category');
         }
 
        // Set the post tags
@@ -377,8 +377,6 @@ function add_recipe_action() {
     }
 }
 
-
-
 function enqueue_jquery() {
     wp_enqueue_script('jquery');
 }
@@ -405,8 +403,9 @@ function search_recipes() {
         if ($search_query->have_posts()) {
             while ($search_query->have_posts()) {
                 $search_query->the_post();
-                $recipe_slug = get_post_field('post_name', get_the_ID());
-                $recipe_permalink = home_url('/recipe-details/?slug=' . $recipe_slug);
+                $recipe_id = get_the_ID();
+                //$recipe_slug = get_post_field('post_name', get_the_ID());
+                $recipe_permalink = home_url('/recipe-details/?recipe_id=' . $recipe_id);
                 ?>
                 <a href="<?php echo esc_url($recipe_permalink); ?>" class="result">
                     <div class="d-flex">
@@ -480,4 +479,52 @@ function handle_comment_redirect($comment_id) {
         }
     }
 }
+
+// Display recipe rating
+function display_recipe_rating($post_id) {
+    if (!is_user_logged_in()) {
+        $message = '<p><a href="' . wp_login_url() . '">Login to rate</a></p>';
+        return $message;
+    }
+    
+    $current_user_id = get_current_user_id();
+    $post_author_id = get_post_field('post_author', $post_id);
+    
+    if ($current_user_id == $post_author_id) {
+        $message = '<p>You cannot rate your own post</p>';
+        return $message;
+    }
+
+    $user_rating = get_user_meta($current_user_id, 'recipe_rating_' . $post_id, true);
+
+    if ($user_rating) {
+        $message = '<p>You have rated this recipe</p>';
+    } else {
+        $message = '<p>Click on the star(s) to rate</p>';
+    }
+
+    $average_rating = get_post_meta($post_id, 'recipe_average_rating', true);
+    $rating_count = get_post_meta($post_id, 'recipe_rating_count', true);
+
+    $average_rating = $average_rating ? $average_rating : 0;
+    $rating_count = $rating_count ? $rating_count : 0;
+
+    $rounded_rating = round($average_rating);
+
+    ob_start();
+    ?>
+    <div class="recipe-rating-wrapper" data-post-id="<?php echo esc_attr($post_id); ?>">
+        <div class="recipe-rating-stars">
+            <?php for ($i = 1; $i <= 5; $i++) : ?>
+                <span class="star <?php echo ($i <= $rounded_rating) ? 'filled' : ''; ?>" data-value="<?php echo $i; ?>">★</span>
+            <?php endfor; ?>
+        </div>
+        <p class="recipe-rating-info"><?php echo esc_html($average_rating); ?> (<?php echo esc_html($rating_count); ?> ratings)</p>
+        <p class="recipe-rating-message"><?php echo $message; ?></p>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
+
 ?>

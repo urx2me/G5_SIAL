@@ -1,0 +1,22 @@
+.crp-stars {
+    font-size: 24px;
+    display: flex;
+    cursor: pointer; /* Ensure pointer cursor is applied */
+}
+
+.crp-stars .star {
+    color: #ccc; /* Grey color for stars by default */
+    display: inline-block;
+    margin-right: 5px;
+    transition: color 0.2s;
+}
+
+
+.crp-stars .star:hover,
+.crp-stars .star.hover {
+    color: #FFD700; /* Gold color for hover effect */
+}
+
+.crp-stars .star.filled {
+    color: #FFD700; /* Gold color for filled stars */
+}

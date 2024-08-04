@@ -111,14 +111,14 @@ if (isset($_POST['comment_post_ID'])) {
                             
 <!-- Rating Display and Form -->
 <?php
-    $all_ratings = get_post_meta($recipe_id, 'crp_ratings', true);
-    $total_ratings = is_array($all_ratings) ? count($all_ratings) : 0;
-    $sum_ratings = is_array($all_ratings) ? array_sum($all_ratings) : 0;
-    $average_rating = $total_ratings ? round($sum_ratings / $total_ratings, 1) : 0;
+$all_ratings = get_post_meta($recipe_id, 'crp_ratings', true);
+$total_ratings = is_array($all_ratings) ? count($all_ratings) : 0;
+$sum_ratings = is_array($all_ratings) ? array_sum($all_ratings) : 0;
+$average_rating = $total_ratings ? round($sum_ratings / $total_ratings, 1) : 0;
 ?>
 
-<div class="crp-rating" data-recipe-id="<?php echo esc_attr($recipe_id); ?>">
-    <div class="crp-stars" data-user-rating="<?php echo esc_attr(get_post_meta($recipe_id, 'crp_user_rating_' . get_current_user_id(), true)); ?>">
+<div class="crp-rating" data-recipe-id="<?php echo esc_attr($recipe_id); ?>" data-average-rating="<?php echo esc_attr($average_rating); ?>">
+    <div class="crp-stars">
         <?php for ($i = 1; $i <= 5; $i++) : ?>
             <span class="star" data-value="<?php echo $i; ?>">&#9733;</span>
         <?php endfor; ?>
@@ -126,7 +126,7 @@ if (isset($_POST['comment_post_ID'])) {
     <div class="crp-message">
         <?php
         if (!is_user_logged_in()) {
-            echo '<p><a href="' . wp_login_url(get_permalink()) . '">Login to rate</a></p>';
+            echo '<p><a href="' . esc_url(home_url('/login/')) . '">Login to rate</a></p>';
         } elseif (get_current_user_id() == get_post_field('post_author', $recipe_id)) {
             echo '<p>You cannot rate your own post.</p>';
         } else {
@@ -144,6 +144,8 @@ if (isset($_POST['comment_post_ID'])) {
         <p>Average Rating: <?php echo esc_html($average_rating); ?> (<?php echo esc_html($total_ratings); ?> ratings)</p>
     </div>
 </div>
+
+
 
 
 
@@ -412,6 +414,8 @@ if (isset($_POST['comment_post_ID'])) {
 <script src="<?php echo get_template_directory_uri(); ?>/js/mail-script.js"></script>
 
 <script src="<?php echo get_template_directory_uri(); ?>/js/main.js"></script>
+
+
 </body>
 
 </html>
