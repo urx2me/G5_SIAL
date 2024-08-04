@@ -338,7 +338,7 @@ function add_recipe_action() {
 
         // Set the post category
         if (!empty($category_id)) {
-            wp_set_post_terms($post_id, array($category_id), 'recipe_category');
+            wp_set_post_terms($post_id, array($category_id), 'category');
         }
 
        // Set the post tags

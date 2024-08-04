@@ -58,7 +58,7 @@ if (!isset($_SESSION['username'])) {
                                     <option disabled selected>Select Category</option>
                                     <?php
                                     $categories = get_terms(array(
-                                        'taxonomy'   => 'recipe_category',
+                                        'taxonomy'   => 'category',
                                         'hide_empty' => false, // Change to true if you want to hide empty categories
                                     ));
                                     foreach ($categories as $category) {
