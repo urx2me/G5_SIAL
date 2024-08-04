@@ -5,7 +5,52 @@
 */
 
 //get_header();
+global $is_IIS;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Include your login logic here
+    $username = sanitize_text_field($_POST['username']);
+    $password = $_POST['password'];
+    $user = wp_authenticate($username, $password);
+
+    if (!is_wp_error($user)) {
+        $_SESSION['loggedin'] = true; // Set the session variable to true
+        $_SESSION['user_id'] = $user->ID;
+        $_SESSION['username'] = $user->user_login;
+
+        // Redirect to the Home Page or another page
+        $location = home_url('/index_loggin/');
+        $status = 302;
+        $x_redirect_by = 'WordPress';
+
+        $location = apply_filters('wp_redirect', $location, $status);
+        $status = apply_filters('wp_redirect_status', $status, $location);
+
+        if ($location) {
+            if ($status < 300 || 399 < $status) {
+                wp_die(__('HTTP redirect status code must be a redirection code, 3xx.'));
+            }
+
+            $location = wp_sanitize_redirect($location);
+
+            if (!$is_IIS && 'cgi-fcgi' !== PHP_SAPI) {
+                status_header($status); // This causes problems on IIS and some FastCGI setups.
+            }
+
+            $x_redirect_by = apply_filters('x_redirect_by', $x_redirect_by, $status, $location);
+            if (is_string($x_redirect_by)) {
+                header("X-Redirect-By: $x_redirect_by");
+            }
+
+            header("Location: $location", true, $status);
+            exit();
+        }
+    } else {
+        $error_message = 'Invalid username or password.';
+    }
+}
 ?>
+
 <!doctype html>
 <html class="no-js" lang="zxx">
 
@@ -16,168 +61,141 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- <link rel="manifest" href="site.webmanifest"> -->
-    <!-- Place favicon.ico in the root directory -->
-
-
+    <!-- CSS here -->
+    <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/css/bootstrap.min.css">
+    <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/css/magnific-popup.css">
+    <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/css/font-awesome.min.css">
+    <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/css/themify-icons.css">
+    <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/css/nice-select.css">
+    <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/css/flaticon.css">
+    <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/css/gijgo.css">
+    <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/css/animate.min.css">
+    <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/css/slick.css">
+    <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/css/slicknav.css">
+    <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/css/style.css">
 </head>
-<!-- CSS here -->
-<?php include get_template_directory() . '/css.php'; ?>
-<!-- bradcam_area  -->
-<div class="bradcam_area bradcam_bg_1">
+
+<body>
+    <!--[if lte IE 9]>
+        <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+    <![endif]-->
+
+    <!-- header-start -->
+    <?php include get_template_directory() . '/nav/iheader.php'; ?>
+    <!-- header-end -->
+
+    <!-- search  -->
+    <?php include get_template_directory() . '/nav/isearch.php'; ?>
+    <!-- /end search  -->
+
+    <!-- bradcam_area  -->
+    <?php include get_template_directory() . '/nav/ibradcam.php'; ?>
+    <!-- /bradcam_area  -->
+     
+    <!-- recepie_area_start  -->
+    <div class="recepie_area">
         <div class="container">
+            <h1 class="text-center mb-5 w-100">Top Best Recipes</h1>
             <div class="row">
-                <div class="col-xl-12">
-                    <div class="bradcam_text text-center">
-                        <h3>Food Recipe</h3>
-                    </div>
-                </div>
+                <?php
+                // Query for top 3 most recent recipes
+                $top_recipes = new WP_Query(array(
+                    'post_type'      => 'recipe',
+                    'posts_per_page' => 3,
+                    'orderby'        => 'date',
+                    'order'          => 'DESC'
+                ));
+
+                if ($top_recipes->have_posts()) :
+                    while ($top_recipes->have_posts()) : $top_recipes->the_post();
+                        $thumbnail_url = get_the_post_thumbnail_url(get_the_ID(), 'thumbnail');
+                        $recipe_id = get_the_ID();
+                        $recipe_link = esc_url(home_url('/recipe-details/?recipe_id=' . $recipe_id));
+                        ?>
+                        <div class="col-xl-4 col-lg-4 col-md-6">
+                            <div class="single_recepie text-center">
+                                <div class="recepie_thumb">
+                                    <a href="<?php echo $recipe_link; ?>"><img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php the_title(); ?>"></a>
+                                </div>
+                                <p class="mt-3">
+                                    <?php
+                                    $average_rating = get_post_meta(get_the_ID(), '_rating', true);
+                                    if ($average_rating) {
+                                        for ($i = 1; $i <= 5; $i++) {
+                                            echo '<i class="fa ' . ($i <= $average_rating ? 'fa-star' : 'fa-star-o') . '" aria-hidden="true"></i>';
+                                        }
+                                    } else {
+                                        echo '<i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i>';
+                                    }
+                                    ?>
+                                </p>
+                                <h3 class="mt-0"><?php the_title(); ?></h3>
+                            </div>
+                        </div>
+                        <?php
+                    endwhile;
+                    wp_reset_postdata();
+                else :
+                    ?>
+                    <p>No top recipes found.</p>
+                    <?php
+                endif;
+                ?>
             </div>
         </div>
     </div>
-    <!-- /bradcam_area  -->
-<!-- recepie_area_start  -->
-<div class="recepie_area">
-    <div class="container">
-        <h1 class="text-center mb-5 w-100">Top Best Recipes</h1>
-        <div class="row">
-            <?php
-            // Custom query to get the top 3 rated recipes
-            $args = array(
-                'post_type'      => 'recipe', // Custom post type
-                'posts_per_page' => 3, // Number of recipes to display
-                'meta_key'       => '_average_rating', // Custom field for rating
-                'orderby'        => 'meta_value_num', // Order by numeric meta value
-                'order'          => 'DESC', // Highest rating first
-                'meta_query'     => array(
-                    array(
-                        'key'     => '_average_rating',
-                        'compare' => 'EXISTS' // Ensure that the meta key exists
-                    )
-                )
-            );
-            $top_rated_recipe_query = new WP_Query($args);
+    <!-- /recepie_area_start  -->
 
-            // Check if there are posts
-            if ($top_rated_recipe_query->have_posts()) :
-                while ($top_rated_recipe_query->have_posts()) : $top_rated_recipe_query->the_post(); ?>
-                    <div class="col-xl-4 col-lg-4 col-md-6">
-                        <div class="single_recepie text-center">
-                            <div class="recepie_thumb">
-                                <a href="<?php echo esc_url(home_url('/recipe-details/?recipe_id=' . get_the_ID())); ?>">
-                                    <?php
-                                    if (has_post_thumbnail()) :
-                                        the_post_thumbnail('medium', array('class' => 'img-fluid recepie-thumb-image')); // Display recipe thumbnail
-                                    else : ?>
-                                        <img src="<?php echo esc_url(get_template_directory_uri() . '/img/recepie/default.png'); ?>" alt="Default Thumbnail" class="img-fluid recepie-thumb-image">
-                                    <?php endif; ?>
-                                </a>
-                            </div>
-                            <p class="mt-3">
-                                <?php
-                                // Display star rating
-                                $average_rating = get_post_meta(get_the_ID(), '_average_rating', true);
-                                $average_rating = floatval($average_rating); // Ensure it's a float
-                                for ($i = 1; $i <= 5; $i++) {
-                                    if ($i <= floor($average_rating)) {
-                                        echo '<i class="fa fa-star" aria-hidden="true"></i>';
-                                    } elseif ($i - $average_rating == 0.5) {
-                                        echo '<i class="fa fa-star-half-o" aria-hidden="true"></i>';
-                                    } else {
-                                        echo '<i class="fa fa-star-o" aria-hidden="true"></i>';
-                                    }
-                                }
-                                ?>
-                            </p>
-                            <h3 class="mt-0"><?php the_title(); ?></h3>
-                        </div>
-                    </div>
-                <?php endwhile;
-
-                // Reset post data
-                wp_reset_postdata();
-            else :
-                echo '<p>No recipes found. Debugging info: Check if meta key `_average_rating` exists and has values.</p>';
-            endif;
-            ?>
-        </div>
-    </div>
-</div>
-<!-- /recepie_area_start  -->
-
-<!-- dish_area start  -->
-<div class="dish_area">
+    <!-- dish_area start  -->
+    <div class="dish_area">
     <div class="container">
         <h1 class="text-center w-100" style="margin-bottom: 150px;">All Other Recipes</h1>
         <div class="row">
             <div class="col-xl-12">
                 <div class="dish_wrap" style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; row-gap: 140px;">
                     <?php
-                    // Get the top 3 best-rated recipes
-                    $top_rated_args = array(
+                    // Query for all recipes
+                    $all_recipes = new WP_Query(array(
                         'post_type'      => 'recipe',
-                        'posts_per_page' => 3,
-                        'meta_key'       => '_average_rating',
-                        'orderby'        => 'meta_value_num',
-                        'order'          => 'DESC'
-                    );
-                    $top_rated_query = new WP_Query($top_rated_args);
-                    $top_rated_ids = array();
-
-                    if ($top_rated_query->have_posts()) :
-                        while ($top_rated_query->have_posts()) : $top_rated_query->the_post();
-                            $top_rated_ids[] = get_the_ID();
-                        endwhile;
-                        wp_reset_postdata();
-                    endif;
-
-                    // Custom query to get all other recipes except the top 3 best-rated
-                    $args = array(
-                        'post_type'      => 'recipe', // Custom post type
                         'posts_per_page' => -1, // Get all recipes
-                        'orderby'        => 'date', // Order by date
-                        'order'          => 'DESC', // Latest first
-                        'post__not_in'   => $top_rated_ids // Exclude top-rated recipes
-                    );
-                    $all_other_recipes_query = new WP_Query($args);
+                        'orderby'        => 'date',
+                        'order'          => 'DESC'
+                    ));
 
-                    // Check if there are posts
-                    if ($all_other_recipes_query->have_posts()) :
-                        while ($all_other_recipes_query->have_posts()) : $all_other_recipes_query->the_post(); ?>
+                    if ($all_recipes->have_posts()) :
+                        while ($all_recipes->have_posts()) : $all_recipes->the_post();
+                            $thumbnail_url = get_the_post_thumbnail_url(get_the_ID(), 'full'); // Use 'full' size for better quality
+                            $recipe_id = get_the_ID();
+                            $recipe_link = esc_url(home_url('/recipe-details/?recipe_id=' . $recipe_id));
+                            ?>
                             <div class="single_dish text-center">
                                 <div class="thumb dish-thumb">
-                                    <a href="<?php echo esc_url(home_url('/recipe-details/?recipe_id=' . get_the_ID())); ?>">
-                                        <?php
-                                        if (has_post_thumbnail()) :
-                                            the_post_thumbnail('medium', array('class' => 'img-fluid dish-thumb-image')); // Display recipe thumbnail
-                                        else : ?>
-                                            <img src="<?php echo esc_url(get_template_directory_uri() . '/img/recepie/default.png'); ?>" alt="Default Thumbnail" class="img-fluid dish-thumb-image">
-                                        <?php endif; ?>
+                                    <a href="<?php echo $recipe_link; ?>">
+                                        <img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php the_title(); ?>" class="dish-thumb-image">
                                     </a>
                                 </div>
                                 <p class="mb-2">
                                     <?php
-                                    // Display star rating based on actual rating
-                                    $average_rating = get_post_meta(get_the_ID(), '_average_rating', true);
-                                    $average_rating = !empty($average_rating) ? round($average_rating) : 0;
-                                    for ($i = 1; $i <= 5; $i++) {
-                                        if ($i <= $average_rating) {
-                                            echo '<i class="fa fa-star" aria-hidden="true"></i>';
-                                        } else {
-                                            echo '<i class="fa fa-star-o" aria-hidden="true"></i>';
+                                    $average_rating = get_post_meta(get_the_ID(), '_rating', true);
+                                    if ($average_rating) {
+                                        for ($i = 1; $i <= 5; $i++) {
+                                            echo '<i class="fa ' . ($i <= $average_rating ? 'fa-star' : 'fa-star-o') . '" aria-hidden="true"></i>';
                                         }
+                                    } else {
+                                        echo '<i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i>';
                                     }
                                     ?>
                                 </p>
-                                Published: <?php echo get_the_date('d-M-Y'); ?>
-                                <h3 class="mt-3"><?php the_title(); ?></h3>
+                                <h3 class="mb-0"><?php the_title(); ?></h3>
                             </div>
-                        <?php endwhile;
-
-                        // Reset post data
+                            <?php
+                        endwhile;
                         wp_reset_postdata();
                     else :
-                        echo '<p>No recipes found.</p>';
+                        ?>
+                        <p>No recipes found.</p>
+                        <?php
                     endif;
                     ?>
                 </div>
@@ -185,7 +203,7 @@
         </div>
     </div>
 </div>
-<!--/ dish_area end  -->
+    <!-- /dish_area start  -->
 
 
 
