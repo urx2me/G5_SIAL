@@ -83,51 +83,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="container">
             <h1 class="text-center mb-5 w-100">Top Best Recipes</h1>
             <div class="row">
-                <?php
-                // Query for top 3 most recent recipes
-                $top_recipes = new WP_Query(array(
-                    'post_type'      => 'recipe',
-                    'posts_per_page' => 3,
-                    'orderby'        => 'date',
-                    'order'          => 'DESC'
-                ));
+    <?php
+    // Custom function to get the average rating
+    function get_average_rating($recipe_id) {
+        $all_ratings = get_post_meta($recipe_id, 'crp_ratings', true);
+        $total_ratings = is_array($all_ratings) ? count($all_ratings) : 0;
+        $sum_ratings = is_array($all_ratings) ? array_sum($all_ratings) : 0;
+        return $total_ratings ? round($sum_ratings / $total_ratings, 1) : 0;
+    }
 
-                if ($top_recipes->have_posts()) :
-                    while ($top_recipes->have_posts()) : $top_recipes->the_post();
-                        $thumbnail_url = get_the_post_thumbnail_url(get_the_ID(), 'thumbnail');
-                        $recipe_id = get_the_ID();
-                        $recipe_link = esc_url(home_url('/recipe-details/?recipe_id=' . $recipe_id));
-                        ?>
-                        <div class="col-xl-4 col-lg-4 col-md-6">
-                            <div class="single_recepie text-center">
-                                <div class="recepie_thumb">
-                                    <a href="<?php echo $recipe_link; ?>"><img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php the_title(); ?>"></a>
-                                </div>
-                                <p class="mt-3">
-                                    <?php
-                                    $average_rating = get_post_meta(get_the_ID(), '_rating', true);
-                                    if ($average_rating) {
-                                        for ($i = 1; $i <= 5; $i++) {
-                                            echo '<i class="fa ' . ($i <= $average_rating ? 'fa-star' : 'fa-star-o') . '" aria-hidden="true"></i>';
-                                        }
-                                    } else {
-                                        echo '<i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i><i class="fa fa-star-o" aria-hidden="true"></i>';
-                                    }
-                                    ?>
-                                </p>
-                                <h3 class="mt-0"><?php the_title(); ?></h3>
-                            </div>
-                        </div>
+    // Get all recipes and calculate their average ratings
+    $recipes = new WP_Query(array(
+        'post_type'      => 'recipe',
+        'posts_per_page' => -1 // Get all recipes
+    ));
+
+    $recipes_with_ratings = array();
+
+    if ($recipes->have_posts()) :
+        while ($recipes->have_posts()) : $recipes->the_post();
+            $recipe_id = get_the_ID();
+            $average_rating = get_average_rating($recipe_id);
+            $recipes_with_ratings[] = array(
+                'recipe_id' => $recipe_id,
+                'average_rating' => $average_rating
+            );
+        endwhile;
+        wp_reset_postdata();
+
+        // Sort recipes by average rating in descending order
+        usort($recipes_with_ratings, function($a, $b) {
+            return $b['average_rating'] <=> $a['average_rating'];
+        });
+
+        // Get top 3 recipes
+        $top_recipes = array_slice($recipes_with_ratings, 0, 3);
+        
+        foreach ($top_recipes as $recipe) :
+            $recipe_id = $recipe['recipe_id'];
+            $average_rating = $recipe['average_rating'];
+            $thumbnail_url = get_the_post_thumbnail_url($recipe_id, 'thumbnail');
+            $recipe_link = esc_url(home_url('/recipe-details/?recipe_id=' . $recipe_id));
+            ?>
+            <div class="col-xl-4 col-lg-4 col-md-6">
+                <div class="single_recepie text-center">
+                    <div class="recepie_thumb">
+                        <a href="<?php echo $recipe_link; ?>"><img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php echo get_the_title($recipe_id); ?>"></a>
+                    </div>
+                    <p class="mt-3">
                         <?php
-                    endwhile;
-                    wp_reset_postdata();
-                else :
-                    ?>
-                    <p>No top recipes found.</p>
-                    <?php
-                endif;
-                ?>
+                        for ($i = 1; $i <= 5; $i++) {
+                            echo '<i class="fa ' . ($i <= $average_rating ? 'fa-star' : 'fa-star-o') . '" aria-hidden="true"></i>';
+                        }
+                        ?>
+                    </p>
+                    <h3 class="mt-0"><?php echo get_the_title($recipe_id); ?></h3>
+                </div>
             </div>
+            <?php
+        endforeach;
+    else :
+        ?>
+        <p>No top recipes found.</p>
+        <?php
+    endif;
+    ?>
+</div>
         </div>
     </div>
     <!-- /recepie_area_start  -->
@@ -153,6 +174,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $thumbnail_url = get_the_post_thumbnail_url(get_the_ID(), 'full'); // Use 'full' size for better quality
                             $recipe_id = get_the_ID();
                             $recipe_link = esc_url(home_url('/recipe-details/?recipe_id=' . $recipe_id));
+                            
+                            // Calculate average rating
+                            $all_ratings = get_post_meta($recipe_id, 'crp_ratings', true);
+                            $total_ratings = is_array($all_ratings) ? count($all_ratings) : 0;
+                            $sum_ratings = is_array($all_ratings) ? array_sum($all_ratings) : 0;
+                            $average_rating = $total_ratings ? round($sum_ratings / $total_ratings, 1) : 0;
                             ?>
                             <div class="single_dish text-center">
                                 <div class="thumb dish-thumb">
@@ -162,7 +189,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
                                 <p class="mb-2">
                                     <?php
-                                    $average_rating = get_post_meta(get_the_ID(), '_rating', true);
                                     if ($average_rating) {
                                         for ($i = 1; $i <= 5; $i++) {
                                             echo '<i class="fa ' . ($i <= $average_rating ? 'fa-star' : 'fa-star-o') . '" aria-hidden="true"></i>';
@@ -187,6 +213,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
     </div>
+</div>
+
 </div>
     <!-- /dish_area start  -->
 

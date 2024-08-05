@@ -123,5 +123,5 @@ Template Name: Recipes Page
 
 </html>
 <?php
-get_footer();
+//get_footer();
 ?>
