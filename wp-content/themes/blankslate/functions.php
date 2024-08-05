@@ -524,4 +524,12 @@ function display_recipe_rating($post_id) {
     <?php
     return ob_get_clean();
 }
+
+// REAL
+add_filter('show_admin_bar',function($show) {
+    if (current_user_can('administrator')) {
+        return true;
+    }
+    return false;
+})
 ?>

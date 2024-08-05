@@ -23,6 +23,14 @@ Template Name: Recipes Page
             border-radius: 50%;
             object-fit: cover;
         }
+
+        .reciepie_thumb img {
+            border-radius: 50%;
+            width: 250px;
+            height: 250px;
+            object-fit: cover;
+            margin-top: 30px;
+        }
     </style>
 </head>
 
