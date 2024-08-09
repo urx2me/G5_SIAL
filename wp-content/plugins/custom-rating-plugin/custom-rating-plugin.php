@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name: Custom Rating Plugin
+ * Plugin Name: G5 Rating Plugin
  * Description: A plugin to allow users to rate recipes.
  * Version: 1.0
- * Author: Group 6
+ * Author: Group 5
  */
 
 // Enqueue scripts and styles

@@ -264,7 +264,7 @@ $average_rating = $total_ratings ? round($sum_ratings / $total_ratings, 1) : 0;
                             </div>
                         </div>
                         <!-- Display Comments -->
-                        <div class="comments-area">
+                        <div class="comments-area"style=height:15% !important>
                             <?php
                             // Ensure recipe_id is properly retrieved
                             $recipe_id = isset($_GET['recipe_id']) ? intval($_GET['recipe_id']) : 0;

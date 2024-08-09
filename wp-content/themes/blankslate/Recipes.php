@@ -114,7 +114,7 @@ Template Name: Recipes Page
     <!-- /pagination -->
 
     <!-- footer -->
-    <?php include get_template_directory() . '/nav/ibradcam.php'; ?>
+    <?php include get_template_directory() . '/nav/ifooter.php'; ?>
     <!-- /footer -->
 
     <!-- JS here -->
